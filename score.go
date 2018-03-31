@@ -1,36 +1,72 @@
 package main
 
+import "log"
+
 type ScoreEntry struct {
-	ID int  `json:"-"`
-	MapID int `json:"mapId"`
-	Position int `json:"position"`
-	Name string `json:"name"`
-	Moves int `json:"moves"`
+	MapID    int    `json:"mapId"`
+	Position int    `json:"position"`
+	Name     string `json:"name"`
+	Moves    int    `json:"moves"`
 }
 
-var tempScores []*ScoreEntry
+func GetAllScoresForMap(mapId int) []ScoreEntry {
+	var rtn []ScoreEntry
 
-func GetScoresForMap(mapId int) []*ScoreEntry {
-	var rtn []*ScoreEntry
+	result, err := db.Query("SELECT  mapId, name, moves FROM vwScoresForMap WHERE mapId = ?", mapId)
 
-	for _, item := range tempScores {
-		if item.MapID == mapId {
-			rtn = append(rtn, item)
-		}
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for result.Next() {
+		var row ScoreEntry
+
+		result.Scan(&row.MapID, &row.Name, &row.Moves)
+		row.Position = len(rtn) + 1
+
+		rtn = append(rtn, row)
+	}
+
+	return rtn
+}
+
+func GetScoresForMap(mapId int, limit int, offset int) []ScoreEntry {
+	var rtn []ScoreEntry
+
+	result, err := db.Query("SELECT  mapId, name, moves FROM vwScoresForMap WHERE mapId = ? LIMIT ? OFFSET ?", mapId, limit, offset)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for result.Next() {
+		var row ScoreEntry
+
+		result.Scan(&row.MapID, &row.Name, &row.Moves)
+		row.Position = len(rtn) + 1 + offset
+
+		rtn = append(rtn, row)
 	}
 
 	return rtn
 }
 
 func AddScore(score ScoreEntry) int {
-	itemIx := len(tempScores)
-	score.ID = itemIx
 
-	tempScores = append(tempScores, &score)
+	result, err := db.Exec("INSERT INTO score (mapId, name, moves) VALUES (?, ?, ?)", score.MapID, score.Name, score.Moves)
 
-	mapScores := GetScoresForMap(score.MapID)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	score.Position = len(mapScores)
+	insertedRecordId, _ := result.LastInsertId()
 
-	return score.Position
+	var position int
+	err = db.QueryRow("SELECT funGetScoreIdPosition(?)", insertedRecordId).Scan(&position)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return position
 }
