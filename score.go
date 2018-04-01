@@ -10,7 +10,7 @@ type ScoreEntry struct {
 }
 
 func GetAllScoresForMap(mapId int) []ScoreEntry {
-	var rtn []ScoreEntry
+	rtn := make([]ScoreEntry, 0)
 
 	result, err := db.Query("SELECT  mapId, name, moves FROM vwScoresForMap WHERE mapId = ?", mapId)
 
@@ -31,7 +31,7 @@ func GetAllScoresForMap(mapId int) []ScoreEntry {
 }
 
 func GetScoresForMap(mapId int, limit int, offset int) []ScoreEntry {
-	var rtn []ScoreEntry
+	rtn := make([]ScoreEntry, 0)
 
 	result, err := db.Query("SELECT  mapId, name, moves FROM vwScoresForMap WHERE mapId = ? LIMIT ? OFFSET ?", mapId, limit, offset)
 
@@ -52,7 +52,6 @@ func GetScoresForMap(mapId int, limit int, offset int) []ScoreEntry {
 }
 
 func AddScore(score ScoreEntry) int {
-
 	result, err := db.Exec("INSERT INTO score (mapId, name, moves) VALUES (?, ?, ?)", score.MapID, score.Name, score.Moves)
 
 	if err != nil {

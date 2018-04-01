@@ -26,7 +26,7 @@ type MapDatabaseEntry struct {
 }
 
 func GetAllMaps() []MapEntry {
-	var rtn []MapEntry
+	rtn := make([]MapEntry, 0)
 
 	result, err := db.Query("SELECT * FROM map WHERE published=1")
 
