@@ -73,6 +73,8 @@ func main() {
 	localDb, err := sql.Open("mysql", CreateDsnFromConfig("settings.ini"))
 	defer localDb.Close()
 
+	localDb.SetMaxIdleConns(0) // prevent
+
 	if err != nil {
 		log.Fatal(err)
 	}
