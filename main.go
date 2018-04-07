@@ -23,7 +23,8 @@ func GetScores(w http.ResponseWriter, r *http.Request) {
 
 	mapId, err := strconv.Atoi(params["mapId"])
 	if err != nil {
-		log.Fatal(err)
+		w.Write([]byte("[]"))
+		return
 	}
 
 	var limit, offset int
@@ -31,14 +32,16 @@ func GetScores(w http.ResponseWriter, r *http.Request) {
 	if params["limit"] != "" {
 		limit, err = strconv.Atoi(params["limit"])
 		if err != nil {
-			log.Fatal(err)
+			w.Write([]byte("[]"))
+			return
 		}
 	}
 
 	if params["offset"] != "" {
 		offset, err = strconv.Atoi(params["offset"])
 		if err != nil {
-			log.Fatal(err)
+			w.Write([]byte("[]"))
+			return
 		}
 	}
 
@@ -60,7 +63,8 @@ func PostScore(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&score)
 
 	if err != nil {
-		log.Fatal(err)
+		w.Write([]byte("-1"))
+		return
 	}
 
 	position := strconv.Itoa(AddScore(score))
@@ -73,7 +77,7 @@ func main() {
 	localDb, err := sql.Open("mysql", CreateDsnFromConfig("settings.ini"))
 	defer localDb.Close()
 
-	localDb.SetMaxIdleConns(0) // prevent
+	localDb.SetMaxIdleConns(0)
 
 	if err != nil {
 		log.Fatal(err)
