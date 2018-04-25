@@ -87,16 +87,16 @@ func main() {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/map", GetMaps).Methods("GET")
-	router.HandleFunc("/score/{mapId}", GetScores).Methods("GET")
-	router.HandleFunc("/score/{mapId}/{limit}", GetScores).Methods("GET")
-	router.HandleFunc("/score/{mapId}/{limit}/{offset}", GetScores).Methods("GET")
-	router.HandleFunc("/score", PostScore).Methods("POST")
+	router.HandleFunc("/maps", GetMaps).Methods("GET")
+	router.HandleFunc("/scores/{mapId}", GetScores).Methods("GET")
+	router.HandleFunc("/scores/{mapId}/{limit}", GetScores).Methods("GET")
+	router.HandleFunc("/scores/{mapId}/{limit}/{offset}", GetScores).Methods("GET")
+	router.HandleFunc("/scores", PostScore).Methods("POST")
 
 	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
 	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"})
 
-	log.Print("started")
+	log.Print("Sokoban server started")
 	log.Fatal(http.ListenAndServe(":10500", handlers.CORS(allowedOrigins, allowedHeaders, allowedMethods)(router)))
 }
